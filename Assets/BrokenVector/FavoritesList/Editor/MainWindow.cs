@@ -156,7 +156,7 @@ namespace BrokenVector.FavoritesList
             float buttonWidth = inspectorWidth + BORDER_SPACE;
 
             buttonWidth = sceneData.IsScene ? (buttonWidth / 3) - 2.5f : buttonWidth;
-            buttonWidth -= 20f; // Ping button
+            buttonWidth -= 3*20f; // Ping button
 
             GUILayout.BeginHorizontal();
 
@@ -180,6 +180,20 @@ namespace BrokenVector.FavoritesList
                 reference.UpdateCachedData();
                 reference.SelectAndPing();
             }
+
+            EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == list.References.Count - 1);
+            if (GUILayout.Button("↑", GUILayout.Width(19), GUILayout.Height(19)))
+            {
+                list.MoveReferenceUp(reference);
+            }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == 0);
+            if (GUILayout.Button("↓", GUILayout.Width(19), GUILayout.Height(19)))
+            {
+                list.MoveReferenceDown(reference);
+            }
+            EditorGUI.EndDisabledGroup();
 
 #if UNITY_5_4_OR_NEWER
             if (sceneData.IsScene)

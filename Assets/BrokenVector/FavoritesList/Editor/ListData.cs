@@ -25,6 +25,32 @@ namespace BrokenVector.FavoritesList
             AssetDatabase.SaveAssets();
         }
 
+        public void MoveReferenceDown(ObjectReference obj)
+        {
+            int objIndex = References.IndexOf(obj);
+            if (objIndex - 1 >= 0)
+            {
+                ObjectReference refUp = References[objIndex - 1];
+                References[objIndex - 1] = obj;
+                References[objIndex] = refUp;
+            }
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
+        }
+
+        public void MoveReferenceUp(ObjectReference obj)
+        {
+            int objIndex = References.IndexOf(obj);
+            if (objIndex + 1 < References.Count)
+            {
+                ObjectReference refDown = References[objIndex + 1];
+                References[objIndex + 1] = obj;
+                References[objIndex] = refDown;
+            }
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
+        }
+
         public void Clear()
         {
             References.Clear();
