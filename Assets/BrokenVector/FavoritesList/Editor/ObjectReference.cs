@@ -98,11 +98,16 @@ namespace BrokenVector.FavoritesList
             this.cachedTypes = cachedTypes.ToArray();
         }
 
-        public void Select()
+        public void Ping()
         {
-            //if (!(type == ReferenceType.Scene && FindReferenceInScene()))
-                //Debug.LogWarning(Constants.ASSET_NAME + ": Failed to load scene object refernce.");
+            if (type == ReferenceType.Scene)
+                FindReferenceInScene();
 
+            EditorGUIUtility.PingObject(actualReference);
+        }
+
+        public void SelectAndPing()
+        {
             if (type == ReferenceType.Scene)
                 FindReferenceInScene();
 

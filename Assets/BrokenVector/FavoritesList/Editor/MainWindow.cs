@@ -31,7 +31,6 @@ namespace BrokenVector.FavoritesList
         // Fields
         private static ListData list;
 
-
         #region Editor Window
         [MenuItem(Constants.WINDOW_PATH), MenuItem(Constants.WINDOW_PATH_ALT)]
         private static void ShowWindow()
@@ -47,7 +46,7 @@ namespace BrokenVector.FavoritesList
             window.title = Constants.ASSET_NAME;
 #endif
 
-            window.minSize = new Vector2(150, 200);
+            window.minSize = new Vector2(100, 100);
             window.position = Globals.Prefs.Get("position", new Rect(50, 50, 250, 375));
 
             window.Show();
@@ -161,6 +160,7 @@ namespace BrokenVector.FavoritesList
             float buttonWidth = inspectorWidth + BORDER_SPACE;
 
             buttonWidth = sceneData.IsScene ? (buttonWidth / 3) - 2.5f : buttonWidth;
+            buttonWidth -= 20f; // Ping button
 
             GUILayout.BeginHorizontal();
 
@@ -170,10 +170,16 @@ namespace BrokenVector.FavoritesList
             buttonWidth += ICON_SIZE + 10;
 #endif
 
+            if (GUILayout.Button("P", GUILayout.Width(20)))
+            {
+                reference.UpdateCachedData();
+                reference.Ping();
+            }
+
             if (GUILayout.Button(drawData.Name, GUILayout.MaxWidth(buttonWidth), GUILayout.Width(buttonWidth), GUILayout.ExpandWidth(false)))
             {
                 reference.UpdateCachedData();
-                reference.Select();
+                reference.SelectAndPing();
             }
 
 #if UNITY_5_4_OR_NEWER
