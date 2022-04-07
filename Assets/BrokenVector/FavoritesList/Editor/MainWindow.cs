@@ -176,7 +176,10 @@ namespace BrokenVector.FavoritesList
                 reference.Ping();
             }
 
-            if (GUILayout.Button(drawData.Name, GUILayout.MaxWidth(buttonWidth), GUILayout.Width(buttonWidth), GUILayout.ExpandWidth(false)))
+            GUIStyle style = new GUIStyle(GUI.skin.button);
+            style.alignment = TextAnchor.MiddleLeft;
+
+            if (GUILayout.Button(drawData.Name, style, GUILayout.MaxWidth(buttonWidth), GUILayout.Width(buttonWidth), GUILayout.ExpandWidth(false)))
             {
                 reference.UpdateCachedData();
                 reference.SelectAndPing();
