@@ -26,7 +26,6 @@ namespace BrokenVector.FavoritesList
         private static float BORDER_SPACE;
         internal static Texture DEFAULT_ICON;
         private static Texture CLOSE_ICON;
-        private static Texture WINDOW_ICON;
 
         // Fields
         private static ListData list;
@@ -41,7 +40,8 @@ namespace BrokenVector.FavoritesList
             var window = CreateInstance<MainWindow>(); // allows creating multiple windows
 
 #if UNITY_5_4_OR_NEWER
-            window.titleContent = new GUIContent(Constants.ASSET_NAME, WINDOW_ICON);
+            
+            window.titleContent = new GUIContent(Constants.ASSET_NAME, EditorGUIUtility.IconContent("d_Favorite Icon").image);
 #else
             window.title = Constants.ASSET_NAME;
 #endif
@@ -65,10 +65,6 @@ namespace BrokenVector.FavoritesList
                 DEFAULT_ICON = EditorGUIUtility.IconContent("cs Script Icon").image;
                 CLOSE_ICON = EditorGUIUtility.FindTexture("winbtn_mac_close_a");
                 ICON_SPACE = GUIStyle.none.CalcSize(new GUIContent(DEFAULT_ICON));
-
-#if UNITY_5_4_OR_NEWER
-                WINDOW_ICON = Base64.FromBase64(Constants.WINDOW_ICON);
-#endif
             }
         }
         #endregion
@@ -170,7 +166,7 @@ namespace BrokenVector.FavoritesList
             buttonWidth += ICON_SIZE + 10;
 #endif
 
-            if (GUILayout.Button("P", GUILayout.Width(20)))
+            if (GUILayout.Button(EditorGUIUtility.IconContent("Search On Icon").image, GUILayout.Width(19), GUILayout.Height(19)))
             {
                 reference.UpdateCachedData();
                 reference.Ping();
