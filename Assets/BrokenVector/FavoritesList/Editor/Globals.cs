@@ -8,7 +8,7 @@ namespace BrokenVector.FavoritesList
     public static class Globals
     {
 
-        public static readonly AssetPrefs Prefs = new AssetPrefs(Constants.ASSET_PATH);
+        public static readonly AssetPrefs Prefs = new AssetPrefs(Constants.ASSET_NAME);
 
         public static bool Debug
         {
