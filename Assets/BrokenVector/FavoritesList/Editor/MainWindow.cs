@@ -19,7 +19,8 @@ namespace BrokenVector.FavoritesList
 
         // Constants
         private const float ICON_SIZE = 18;
-        private const float CLEAR_BUTTON_WIDTH = 80f;
+        private const float CLEAR_BUTTON_WIDTH = 60f;
+        private const float REORDER_BUTTON_WIDTH = 50f;
 
         // Statics
         private static Vector2 ICON_SPACE;
@@ -29,6 +30,8 @@ namespace BrokenVector.FavoritesList
 
         // Fields
         private static ListData list;
+
+        private static bool reorderMode = false;
 
         #region Editor Window
         [MenuItem(Constants.WINDOW_PATH), MenuItem(Constants.WINDOW_PATH_ALT)]
@@ -61,7 +64,7 @@ namespace BrokenVector.FavoritesList
 
             if (DEFAULT_ICON == null)
             {
-                BORDER_SPACE = ICON_SPACE.x - ICON_SIZE * 2 - 25; // 25 because of scrollbar
+                BORDER_SPACE = ICON_SPACE.x - ICON_SIZE * 2 - 20; // 20 because of scrollbar
                 DEFAULT_ICON = EditorGUIUtility.IconContent("cs Script Icon").image;
                 CLOSE_ICON = EditorGUIUtility.FindTexture("winbtn_mac_close_a");
                 ICON_SPACE = GUIStyle.none.CalcSize(new GUIContent(DEFAULT_ICON));
@@ -116,9 +119,17 @@ namespace BrokenVector.FavoritesList
             LoadResources();
 
             searchText = SearchUtils.BeginSearchbar(this, searchText);
-            if (SearchUtils.Button(new GUIContent("Remove All"), GUILayout.MaxWidth(CLEAR_BUTTON_WIDTH)))
+            if (SearchUtils.Button(new GUIContent("Clear All"), GUILayout.MaxWidth(CLEAR_BUTTON_WIDTH)))
             {
-                list.Clear();
+                if(EditorUtility.DisplayDialog("Warning", "Do you really want to clear the whole list?", "Yes", "No")){
+                    list.Clear();
+                }
+
+                Repaint();
+            }
+            if (SearchUtils.Button(new GUIContent("Reorder"), GUILayout.MaxWidth(CLEAR_BUTTON_WIDTH)))
+            {
+                reorderMode = !reorderMode;
 
                 Repaint();
             }
@@ -156,7 +167,12 @@ namespace BrokenVector.FavoritesList
             float buttonWidth = inspectorWidth + BORDER_SPACE;
 
             buttonWidth = sceneData.IsScene ? (buttonWidth / 3) - 2.5f : buttonWidth;
-            buttonWidth -= 3*20f; // Ping button
+            buttonWidth -= 20f; // Ping button
+            if (reorderMode)
+            {
+                buttonWidth -= 2 * 22f; // Reorder buttons
+            }
+            buttonWidth -= 8; // Scrollbar
 
             GUILayout.BeginHorizontal();
 
@@ -174,29 +190,33 @@ namespace BrokenVector.FavoritesList
 
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.alignment = TextAnchor.MiddleLeft;
+            GUIContent contentText = new GUIContent(drawData.Name, drawData.Name);
 
-            if (GUILayout.Button(drawData.Name, style, GUILayout.MaxWidth(buttonWidth), GUILayout.Width(buttonWidth), GUILayout.ExpandWidth(false)))
+            if (GUILayout.Button(contentText, style, GUILayout.MaxWidth(buttonWidth), GUILayout.Width(buttonWidth), GUILayout.ExpandWidth(false)))
             {
                 reference.UpdateCachedData();
                 reference.SelectAndPing();
             }
 
-            EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == list.References.Count - 1);
-            if (GUILayout.Button("↑", GUILayout.Width(19), GUILayout.Height(19)))
+            if (reorderMode)
             {
-                list.MoveReferenceUp(reference);
-            }
-            EditorGUI.EndDisabledGroup();
+                EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == list.References.Count - 1);
+                if (GUILayout.Button("↑", GUILayout.Width(19), GUILayout.Height(19)))
+                {
+                    list.MoveReferenceUp(reference);
+                }
+                EditorGUI.EndDisabledGroup();
 
-            EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == 0);
-            if (GUILayout.Button("↓", GUILayout.Width(19), GUILayout.Height(19)))
-            {
-                list.MoveReferenceDown(reference);
+                EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == 0);
+                if (GUILayout.Button("↓", GUILayout.Width(19), GUILayout.Height(19)))
+                {
+                    list.MoveReferenceDown(reference);
+                }
+                EditorGUI.EndDisabledGroup();
             }
-            EditorGUI.EndDisabledGroup();
 
 #if UNITY_5_4_OR_NEWER
-            if (sceneData.IsScene)
+                if (sceneData.IsScene)
             {
                 var scene = sceneData.Scene;
                 // Playmode
