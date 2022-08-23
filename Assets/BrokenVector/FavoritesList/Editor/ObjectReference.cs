@@ -41,7 +41,6 @@ namespace BrokenVector.FavoritesList
         [SerializeField]
         private int localIdentifier;
 
-
         public ObjectReference(Object reference)
         {
             actualReference = reference;
@@ -111,8 +110,51 @@ namespace BrokenVector.FavoritesList
             if (type == ReferenceType.Scene)
                 FindReferenceInScene();
 
-            EditorGUIUtility.PingObject(actualReference);
-            Selection.activeObject = actualReference;
+            // Is it a folder?
+            if (AssetDatabase.IsValidFolder(this.GetPath()))
+            {
+                ProjectWindowToolkit.ShowFolderContents(this.GetPath());
+            }
+            else
+            {
+                EditorGUIUtility.PingObject(actualReference);
+                Selection.activeObject = actualReference;
+            }   
+        }
+
+        public void Select()
+        {
+            if (type == ReferenceType.Scene)
+                FindReferenceInScene();
+
+            // Is it a folder?
+            if (AssetDatabase.IsValidFolder(this.GetPath()))
+            {
+                ProjectWindowToolkit.ShowFolderContents(this.GetPath());
+            }
+            else
+            {
+                bool alreadyLocked = ProjectWindowToolkit.IsProjectWindowLocked();
+                if (!alreadyLocked)
+                {
+                    ProjectWindowToolkit.LockProjectWindow(true);
+                }
+                
+                Selection.activeObject = actualReference;
+
+                if (!alreadyLocked)
+                {
+                    FavoritesList.MainWindow window = (FavoritesList.MainWindow)EditorWindow.GetWindow(typeof(FavoritesList.MainWindow));
+                    window.UnlockProjectWindow();
+                }
+            }
+
+        }
+
+        public static IEnumerator WaitAndLockProjectWindow(bool lockWindow)
+        {
+            yield return 0;
+            ProjectWindowToolkit.LockProjectWindow(lockWindow);
         }
 
         private bool LoadSceneOfObject()
@@ -173,6 +215,16 @@ namespace BrokenVector.FavoritesList
         public string[] GetTypes()
         {
             return cachedTypes;
+        }
+
+        public string GetPath()
+        {
+            return AssetDatabase.GetAssetPath(actualReference);
+        }
+
+        public string GetTypeString()
+        {
+            return actualReference.GetType().ToString();
         }
 
     }

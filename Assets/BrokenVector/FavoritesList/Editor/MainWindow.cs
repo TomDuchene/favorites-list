@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
+using System.Collections;
 
 #if UNITY_5_4_OR_NEWER
 using UnityEngine.SceneManagement;
@@ -21,6 +22,9 @@ namespace BrokenVector.FavoritesList
         private const float ICON_SIZE = 18;
         private const float CLEAR_BUTTON_WIDTH = 60f;
         private const float REORDER_BUTTON_WIDTH = 50f;
+        private const float PING_BUTTON_WIDTH = 19f;
+        private const float ARROW_BUTTON_WIDTH = 20f;
+        private const float BUTTON_HEIGHT = 19f;
 
         // Statics
         private static Vector2 ICON_SPACE;
@@ -32,6 +36,9 @@ namespace BrokenVector.FavoritesList
         private static ListData list;
 
         private static bool reorderMode = false;
+
+        // Utility
+        private int framesBeforeProjectWindowUnlock = -1;
 
         #region Editor Window
         [MenuItem(Constants.WINDOW_PATH), MenuItem(Constants.WINDOW_PATH_ALT)]
@@ -90,6 +97,18 @@ namespace BrokenVector.FavoritesList
         {
             CleanUp();
         }
+
+        private void Update()
+        {
+            if (framesBeforeProjectWindowUnlock > -1)
+            {
+                if(framesBeforeProjectWindowUnlock == 0)
+                {
+                    ProjectWindowToolkit.LockProjectWindow(false);
+                }
+                framesBeforeProjectWindowUnlock--;
+            }
+        }
         #endregion
 
         #region Instance Lifecycle
@@ -146,12 +165,18 @@ namespace BrokenVector.FavoritesList
                     if (SearchUtils.IsSearched(reference, searchText))
                         if (DrawElement(reference))
                             list.RemoveReference(reference);
+
                 }
 
                 list.References.RemoveAll(reference => reference == null);
             }
 
             DetectDragNDrop();
+        }
+
+        public void UnlockProjectWindow()
+        {
+            framesBeforeProjectWindowUnlock = 1;
         }
 
         // returns true if the element should be removed
@@ -167,10 +192,10 @@ namespace BrokenVector.FavoritesList
             float buttonWidth = inspectorWidth + BORDER_SPACE;
 
             buttonWidth = sceneData.IsScene ? (buttonWidth / 3) - 2.5f : buttonWidth;
-            buttonWidth -= 20f; // Ping button
+            buttonWidth -= PING_BUTTON_WIDTH + 1.0f; // Ping button
             if (reorderMode)
             {
-                buttonWidth -= 2 * 22f; // Reorder buttons
+                buttonWidth -= 2 * (ARROW_BUTTON_WIDTH + 3.0f); // Reorder buttons
             }
             buttonWidth -= 8; // Scrollbar
 
@@ -182,7 +207,8 @@ namespace BrokenVector.FavoritesList
             buttonWidth += ICON_SIZE + 10;
 #endif
 
-            if (GUILayout.Button(EditorGUIUtility.IconContent("Search On Icon").image, GUILayout.Width(19), GUILayout.Height(19)))
+            GUIContent pingContent = new GUIContent(EditorGUIUtility.IconContent("Search On Icon").image, reference.GetPath());
+            if (GUILayout.Button(pingContent, GUILayout.Width(PING_BUTTON_WIDTH), GUILayout.Height(BUTTON_HEIGHT)))
             {
                 reference.UpdateCachedData();
                 reference.Ping();
@@ -190,25 +216,25 @@ namespace BrokenVector.FavoritesList
 
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.alignment = TextAnchor.MiddleLeft;
-            GUIContent contentText = new GUIContent(drawData.Name, drawData.Name);
+            GUIContent contentText = new GUIContent(drawData.Name, reference.GetTypeString());
 
             if (GUILayout.Button(contentText, style, GUILayout.MaxWidth(buttonWidth), GUILayout.Width(buttonWidth), GUILayout.ExpandWidth(false)))
             {
                 reference.UpdateCachedData();
-                reference.SelectAndPing();
+                reference.Select();
             }
 
             if (reorderMode)
             {
                 EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == list.References.Count - 1);
-                if (GUILayout.Button("↑", GUILayout.Width(19), GUILayout.Height(19)))
+                if (GUILayout.Button("↑", GUILayout.Width(ARROW_BUTTON_WIDTH), GUILayout.Height(BUTTON_HEIGHT)))
                 {
                     list.MoveReferenceUp(reference);
                 }
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUI.BeginDisabledGroup(list.References.IndexOf(reference) == 0);
-                if (GUILayout.Button("↓", GUILayout.Width(19), GUILayout.Height(19)))
+                if (GUILayout.Button("↓", GUILayout.Width(ARROW_BUTTON_WIDTH), GUILayout.Height(BUTTON_HEIGHT)))
                 {
                     list.MoveReferenceDown(reference);
                 }
