@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
 
 #if UNITY_5_4_OR_NEWER
 using UnityEngine.SceneManagement;
@@ -17,7 +16,6 @@ namespace BrokenVector.FavoritesList
 {
     public class MainWindow : EditorWindow
     {
-
         // Constants
         private const float ICON_SIZE = 18;
         private const float CLEAR_BUTTON_WIDTH = 60f;
@@ -35,9 +33,8 @@ namespace BrokenVector.FavoritesList
         // Fields
         private static ListData list;
 
-        private static bool reorderMode = false;
-
         // Utility
+        private static bool reorderMode = false;
         private int framesBeforeProjectWindowUnlock = -1;
 
         #region Editor Window
